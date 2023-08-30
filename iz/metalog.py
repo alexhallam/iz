@@ -6,8 +6,8 @@ import numpy as np
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)
 
-def MLprobs(y_old, step_len):
-    """Computes the probabilities for the metalog object.
+def get_probability_grid(y_old, step_len):
+    """Computes a sequence of probabilities given the step length and the input data.
     
     Args:
         y_old (:obj:`list` | `numpy.ndarray` | `pandas.Series` | `torch.tensor`): Input data to fit a metalog to.
@@ -37,7 +37,7 @@ def MLprobs(y_old, step_len):
         else:
             y[i, 1] = y[i - 1, 1] + 1 / l
 
-    # TODO method for turning off and on this n>100 estimation
+    # If the number of data points is greater than 100, then use a step length to reduce the number of probabilities.
     if len(y) > 100:
         y2 = torch.linspace(step_len, 1 - step_len, int((1 - step_len) / step_len))
 
@@ -64,23 +64,22 @@ class LinearRegression(nn.Module):
     def __init__(self, input_dim):
         super(LinearRegression, self).__init__()
         self.linear = nn.Linear(input_dim, 1)  # One input feature, one output
+        # it is necessary to convert the weight and bias to float64 to avoid errors during backpropagation
         self.linear.weight = nn.Parameter(self.linear.weight.to(torch.float64))  # Convert weight to float64
         self.linear.bias = nn.Parameter(self.linear.bias.to(torch.float64))  # Convert bias to float64
-
 
     def forward(self, x):
         return self.linear(x)
 
 epoch_data = {}
 
-def a_vector_SGD(X, y, learning_rate=0.1, num_epochs=5000, convergence_threshold=1e-15, debug=False):
+def a_vector_SGD(X, y, learning_rate=0.1, num_epochs=5000, weight_decay, convergence_threshold=1e-15, debug=False):
     print(f'X: {X}')
     print(f'y: {y}')
     input_dim = X.shape[1] # Number of columns in X
-    model = LinearRegression(input_dim)# Instantiate the model
+    model = LinearRegression(input_dim) # Instantiate the model
     criterion = nn.MSELoss() # Define the loss function
-    # Opimizers that also had good results: Adam, Adamax, NAdam, RAdam, Rprop
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, weight_decay=1e-10)
+    optimizer = optim.SGD(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     prev_loss = None
     for epoch in range(num_epochs):
         outputs = model(X.to(torch.float64))
@@ -119,12 +118,10 @@ class metalog:
     boundedness="u",
     step_len=0.01,
     probs=None,
-    fit_method="any",
-    penalty=None,
-    alpha=0.0,
     terms = 3,
-    lr = 0.1,
+    lr = 0.1,           # learning rate
     epochs = 5000,
+    weight_decay = 0.0 # L2 regularization
     ):
         self.y = y
         self.boundedness = boundedness
@@ -136,10 +133,11 @@ class metalog:
         self.alpha = 0.0
         self.lr = lr
         self.epochs = epochs
+        self.weight_decay = weight_decay
         dict_x = {}
         dict_x["x"] = self.y
         if probs == None:
-            dict_x = MLprobs(self.y, step_len=step_len)
+            dict_x = get_probability_grid(self.y, step_len=step_len)
         else:
             dict_x["probs"] = self.probs # torch.tensor(self.probs, dtype=torch.float64)
         output_dict = {}
@@ -188,20 +186,14 @@ class metalog:
         
         self.output_dict = a_vector_SGD(
             X = output_dict["Y_tensor"],
-            #y = y_vector,
             y = dict_x['z'].reshape(-1, 1).to(torch.float64), # z is the same as the target vector in the unbounded case (i.e. boundedness = 'u')
-            #z = dict_x['z'],
-            #bounds=self.bounds,
-            #boundedness=self.boundedness,
-            #terms=self.terms,
             learning_rate=lr, 
+            weight_decay=weight_decay,
             num_epochs=epochs, 
             convergence_threshold=1e-30,
             debug=True
         )
-        
-        #print(coeffs)
-        
+                
         
     # input validation functions for metalog
 
@@ -369,7 +361,8 @@ class metalog:
 # functions for metalog
 
     def append_zvector(self, dict_x):
-        """Sets the `dataValues` key (Dictionary of torch tensors) in `output_dict` to a DataFrame with columns ['x','probs','z'] of type numeric.
+        """The zvector is what becomes the new y after applying the transformations for the different boundedness types.
+            Sets the `dataValues` key (Dictionary of torch tensors) in `output_dict` to a DataFrame with columns ['x','probs','z'] of type numeric.
 
         Uses `boundedness` attribute to set z vector
             - 'u': output_dict['dataValues']['z'] = x

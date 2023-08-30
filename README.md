@@ -67,8 +67,8 @@ pip install -e .
 ```
 
 ```py
-# simple example
-from iz import metalog
+import pandas as pd
+from iz.metalog import metalog
 
 
 ```
@@ -76,7 +76,11 @@ from iz import metalog
 
 ```py
 # with real data
-from iz import metalog
+import pandas as pd
+from iz.metalog import metalog
+
+df = pd.read_csv("iz/data/fishSize.csv")
+fish_metalog = metalog(y=df.FishSize, bounds=[0], boundedness='sl', terms=4, step_len=.01, epochs=10000, lr = 0.1)
 ```
 
 ### Bounding
