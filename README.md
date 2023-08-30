@@ -23,8 +23,9 @@ $$
 $$
 \mu =\beta_1 + \beta_4(x -0.5) + \beta_5(x -0.5)^2 + \beta_7(x -0.5)^3 + \beta_9(x -0.5)^4 + \dots
 $$
+
 $$
-s   =a_2 + \beta_3(x -0.5) + \beta_6(x -0.5)^2 + \beta_8(x -0.5)^3 + \beta_{10}(x -0.5)^4 + \dots
+s = \beta_2 + \beta_3(x -0.5) + \beta_6(x -0.5)^2 + \beta_8(x -0.5)^3 + \beta_{10}(x -0.5)^4 + \dots
 $$
 
 Each $(y_i,x_i)$ pair represents quantile pair. For example y is the value at evaluated at some x quantile.
