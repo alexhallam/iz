@@ -37,7 +37,6 @@ A SPT pair is the $(y_i,x_i)$ set when evaluating data on the $x = (.10,.50,.90)
 Using the equations from the Specification section we can fit the SPT metalog with the following equations.
 
 $$
-%\begin{equation} \label{eq:matrix notation}
 \mathbf{y} =
  \begin{pmatrix}
   y_{1}\\
@@ -56,8 +55,6 @@ $$
   \beta_{2}\\
   \beta_{3}
  \end{pmatrix}
-%\end{equation}
-
 $$
 
 ### Usage and Examples
