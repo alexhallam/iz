@@ -130,7 +130,6 @@ class metalog:
         self.step_len = step_len
         self.probs = probs
         self.nobs = len(y)
-        self.alpha = 0.0
         self.lr = lr
         self.epochs = epochs
         self.weight_decay = weight_decay
@@ -356,7 +355,52 @@ class metalog:
             if isinstance(ps, torch.Tensor):
                 ps = ps.clone()
         self._probs = ps
-    
+        
+        @property
+        def nobs(self):
+            """nobs (:obj:`int`): Number of observations in the input data."""
+            return self._nobs
+        
+        @nobs.setter
+        def nobs(self, n):
+            if type(n) != int:
+                raise TypeError("nobs parameter must be an integer")
+            if n < 3:
+                raise ValueError("nobs parameter must be greater than 2")
+            self._nobs = n
+        
+        @property
+        def lr(self):
+            """lr (:obj:`float`, optional): Speed"""
+            return self._lr
+        
+        @lr.setter
+        def lr(self, lr):
+            if lr < 0.0001 or lr > 0.1:
+                raise ValueError("lr must be >= to 0.0001 and <= to 0.1")
+            self._lr = lr
+        
+        @property
+        def epochs(self):
+            """epochs (:obj:`int`, optional): Number of iterations used for backprop."""
+            return self._epochs
+        
+        @epochs.setter
+        def epochs(self, epochs):
+            if epochs < 1 or epochs > 1000000:
+                raise ValueError("epochs must be >= to 1 and <= to 1000000")
+            self._epochs = epochs
+            
+        @property
+        def weight_decay(self):
+            """weight_decay (:obj:`float`, optional): The weight decay is a way to penalize the fit via L2 regularization."""
+            return self._weight_decay
+        
+        @weight_decay.setter
+        def weight_decay(self, weight_decay):
+            if weight_decay < 0.0 or weight_decay > 1.0:
+                raise ValueError("weight_decay must be >= to 0.0 and <= to 1.0")
+            self._weight_decay = weight_decay
     
 # functions for metalog
 
