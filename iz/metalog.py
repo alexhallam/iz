@@ -21,7 +21,7 @@ def get_probability_grid(y_old, step_len):
     """
 
     # Convert y_old to a PyTorch tensor
-    y_old_tensor = torch.tensor(y_old, dtype=torch.float32)
+    y_old_tensor = torch.tensor(y_old.clone().detach(), dtype=torch.float32)
 
     # Sort y_old_tensor and create x tensor
     y_sorted, _ = torch.sort(y_old_tensor)
@@ -72,10 +72,8 @@ class LinearRegression(nn.Module):
         return self.linear(x)
 
 epoch_data = {}
-
-def a_vector_SGD(X, y, learning_rate=0.1, num_epochs=5000, weight_decay, convergence_threshold=1e-15, debug=False):
-    print(f'X: {X}')
-    print(f'y: {y}')
+m_dict = {}
+def a_vector_SGD(X, y, learning_rate=0.1, num_epochs=5000, weight_decay=0.0, convergence_threshold=1e-15, debug=False):
     input_dim = X.shape[1] # Number of columns in X
     model = LinearRegression(input_dim) # Instantiate the model
     criterion = nn.MSELoss() # Define the loss function
@@ -87,7 +85,7 @@ def a_vector_SGD(X, y, learning_rate=0.1, num_epochs=5000, weight_decay, converg
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if (epoch + 1) % 125 == 0:
+        if (epoch + 1) % 5 == 0:
             coeffs_i = torch.cat((model.linear.bias.data, model.linear.weight.data.view(-1)))
             epoch_data[epoch] = {
                 'epoch': epoch + 1,
@@ -104,11 +102,12 @@ def a_vector_SGD(X, y, learning_rate=0.1, num_epochs=5000, weight_decay, converg
     coeffs = torch.cat((model.linear.bias.data, model.linear.weight.data.view(-1)))
     if debug:
         print(f'coeffs: {coeffs}')
-    #print(epoch_data)
-    print('------------------------------------------------------------------------------------')
-    print(f'coeffs: {coeffs}')
-    print('------------------------------------------------------------------------------------')
-    return coeffs
+        
+    m_dict["y"] = y
+    m_dict["X"] = X
+    m_dict["coeffs"] = coeffs
+    
+    return m_dict
 
 class metalog:
     def __init__(
@@ -134,6 +133,7 @@ class metalog:
         self.epochs = epochs
         self.weight_decay = weight_decay
         dict_x = {}
+        self.output_dict = {} 
         dict_x["x"] = self.y
         if probs == None:
             dict_x = get_probability_grid(self.y, step_len=step_len)
@@ -143,7 +143,7 @@ class metalog:
 
         # build z vector based on boundedness
         dict_x = self.append_zvector(dict_x)
-        output_dict["params"] = self.get_params()
+        self.output_dict["params"] = self.get_params()
         output_dict["dataValues"] = dict_x
 
         # Construct the Y Matrix initial values
@@ -176,14 +176,9 @@ class metalog:
                 output_dict["Y"][key] = value
     
         output_dict["Y_tensor_ones"] = torch.stack(list(Y.values()), dim=1).reshape(len(output_dict["Y"]['y1']), len(output_dict["Y"])) # remove the third dimension to get a 2D tensor
-        print(output_dict["Y_tensor_ones"])
         output_dict["Y_tensor"] = (output_dict["Y_tensor_ones"][:, 1:]).to(torch.float64)
-        probs_tensor = (output_dict['dataValues']['probs']).reshape(-1, 1)
-        y_vector = (output_dict['dataValues']['x']).reshape(-1, 1)
-        
-        print(f'dict_x: {dict_x}')
-        
-        self.output_dict = a_vector_SGD(
+        output_dict["z"] = dict_x['z'].reshape(-1, 1).to(torch.float64)
+        self.output_dict['model_data'] = a_vector_SGD(
             X = output_dict["Y_tensor"],
             y = dict_x['z'].reshape(-1, 1).to(torch.float64), # z is the same as the target vector in the unbounded case (i.e. boundedness = 'u')
             learning_rate=lr, 
@@ -453,6 +448,10 @@ class metalog:
         params["terms"] = self.terms
         params["step_len"] = self.step_len
         params["nobs"] = self.nobs
+        params["lr"] = self.lr
+        params["epochs"] = self.epochs
+        params["weight_decay"] = self.weight_decay
+        
 
         return params
     
