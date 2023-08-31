@@ -14,15 +14,15 @@
 # )
 
 import pandas as pd
-import iz as iz
-import matplotlib.pyplot as plt
+import iz
+# import matplotlib.pyplot as plt
 
 df = pd.read_csv("iz/data/fishSize.csv")
 fish_metalog = iz.metalog(y=df.FishSize, bounds=[0,60], boundedness='b', terms=3, step_len=.001, epochs=500, lr = 0.1)
 iz.summary(fish_metalog)
 print(df.sort_values(by='FishSize').reset_index(drop=True))
 
-plt.hist(df.FishSize, 12)
+# plt.hist(df.FishSize, 12)
 
 r_gens = iz.rmetalog(fish_metalog, n=5000, generator="hdr")
 # plt.hist(r_gens, 12)

@@ -57,30 +57,67 @@ $$
  \end{pmatrix}
 $$
 
-### Usage and Examples
+## Installation
+
+### 1. Clone
+   
+a. HTTPS: `git clone https://github.com/alexhallam/iz.git`
+
+or
+
+b. GitHub CLI: `gh repo clone alexhallam/iz`
+
+### 2. Change Directory
+
+```sh
+cd iz
+```
+
+### 3. Installation Package
+
+a. pip: `pip install iz`
+
+or
+
+b. poetry: `poetry install iz`
+
+## Examples
 
 ```py
 # install
-git clone 
+gh repo clone alexhallam/iz`
 cd iz
-pip install -e .
+poetry install iz
 ```
+
+### Fish Size Example
+
+This data may be originally sourced from the `pymetalog` and/or `rmetalog` projects. Attribution goes to the original authors.
 
 ```py
 import pandas as pd
-from iz.metalog import metalog
-
-
-```
-
-
-```py
-# with real data
-import pandas as pd
-from iz.metalog import metalog
+import iz
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("iz/data/fishSize.csv")
-fish_metalog = metalog(y=df.FishSize, bounds=[0], boundedness='sl', terms=4, step_len=.01, epochs=10000, lr = 0.1)
+fish_metalog = iz.metalog(y=df.FishSize, bounds=[0,60], boundedness='b', terms=3, step_len=.001, epochs=500, lr = 0.1)
+iz.summary(fish_metalog)
+
+r_gens = iz.rmetalog(fish_metalog, n=5000, generator="hdr")
+plt.hist(r_gens, 12)
+plt.show()
+
+# quantiles from a percentile
+qs = iz.qmetalog(fish_metalog, y=[0.25, 0.5, 0.999])
+print("qmetalog demo: " + str(qs))
+
+# probabilities from a quantile
+ps = iz.pmetalog(fish_metalog, q=[3, 10, 35])
+print("pmetalog demo: " + str(ps))
+
+# density from a quantile
+ds = iz.dmetalog(fish_metalog, q=[3, 10, 25])
+print("dmetalog demo: " + str(ds))
 ```
 
 ### Bounding
