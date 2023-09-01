@@ -106,7 +106,7 @@ import pandas as pd
 import iz
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("iz/data/fishSize.csv")
+df = pd.read_csv("https://raw.githubusercontent.com/alexhallam/iz/main/iz/data/fishSize.csv")
 fish_metalog = iz.metalog(y=df.FishSize, bounds=[0,60], boundedness='b', terms=3, step_len=.001, epochs=500, lr = 0.1)
 iz.summary(fish_metalog)
 
