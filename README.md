@@ -75,11 +75,19 @@ cd iz
 
 ### 3. Installation Package
 
-a. pip: `pip install iz`
+a. pip: 
+
+```sh
+pip install iz
+```
 
 or
 
-b. poetry: `poetry install iz`
+b. poetry: 
+
+```sh
+poetry install iz
+```
 
 ## Examples
 
@@ -87,7 +95,7 @@ b. poetry: `poetry install iz`
 # install
 gh repo clone alexhallam/iz`
 cd iz
-poetry install iz
+poetry install
 ```
 
 ### Fish Size Example
