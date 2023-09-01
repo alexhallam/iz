@@ -83,18 +83,9 @@ cd iz
 
 ### 3. Installation Package
 
-a. pip: 
-
 ```sh
-pip install iz
-```
-
-or
-
-b. poetry: 
-
-```sh
-poetry install
+# --break-system-packages is a flag that was needed in the latest Debian 12 release
+pip install dist/*.tar.gz --break-system-packages
 ```
 
 ## Examples
