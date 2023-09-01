@@ -61,11 +61,19 @@ $$
 
 ### 1. Clone
    
-a. HTTPS: `git clone https://github.com/alexhallam/iz.git`
+a. HTTPS: 
+
+```sh
+git clone https://github.com/alexhallam/iz.git
+```
 
 or
 
-b. GitHub CLI: `gh repo clone alexhallam/iz`
+b. GitHub CLI: 
+
+```sh 
+gh repo clone alexhallam/iz
+```
 
 ### 2. Change Directory
 
@@ -86,7 +94,7 @@ or
 b. poetry: 
 
 ```sh
-poetry install iz
+poetry install
 ```
 
 ## Examples
