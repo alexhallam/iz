@@ -46,8 +46,8 @@ $$
 \mathbf{x} =
  \begin{pmatrix}
   1 & ln(\frac{x_1}{1 - x_1}) & (x_1 - 0.5)ln(\frac{x_1}{1 - x_1})  \\
-  1 & ln(\frac{x_2}{2 - x_2}) & (x_2 - 0.5)ln(\frac{x_2}{1 - x_2})  \\
-  1 & ln(\frac{x_3}{3 - x_3}) & (x_3 - 0.5)ln(\frac{x_3}{1 - x_3})  \\
+  1 & ln(\frac{x_2}{1 - x_2}) & (x_2 - 0.5)ln(\frac{x_2}{1 - x_2})  \\
+  1 & ln(\frac{x_3}{1 - x_3}) & (x_3 - 0.5)ln(\frac{x_3}{1 - x_3})  \\
  \end{pmatrix},
 \mathbf{\beta} =
  \begin{pmatrix}
